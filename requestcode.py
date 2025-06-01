@@ -7,3 +7,6 @@ try:
 
 except requests.ConnectionError:
     print(f"Could not connect to the URL: {url}")
+
+
+    
