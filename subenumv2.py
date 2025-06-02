@@ -25,7 +25,10 @@ def main():
     parser.add_argument('-t', '--threads', type=int, default=100, help='Number of threads')
     parser.add_argument('-o', '--output', default='live_subdomains.txt', help='Output file')
     parser.add_argument('-d', '--domain', required=False, help='Main domain (e.g., example.com)')
+    parser.add_argument('-nc', '--no-color', action='store_true', help='Disable colored output')
     args = parser.parse_args()
+
+    use_color = not args.no_color
 
     subdomains = load_subdomains(args.file)
     if args.domain:
@@ -41,10 +44,16 @@ def main():
         results = list(tqdm(executor.map(check_subdomain, full_domains), total=len(full_domains), desc="Overall Progress"))
         for full_domain, is_live in results:
             if is_live:
-                print(f"{Fore.GREEN}[LIVE]{Style.RESET_ALL} {full_domain}")
+                if use_color:
+                    print(f"{Fore.GREEN}[LIVE] {full_domain}{Style.RESET_ALL}")
+                else:
+                    print(f"[LIVE] {full_domain}")
                 live_subdomains.append(full_domain)
             else:
-                print(f"{Fore.LIGHTYELLOW_EX}[DEAD]{Style.RESET_ALL} {full_domain}")
+                if use_color:
+                    print(f"{Fore.LIGHTYELLOW_EX}[DEAD] {full_domain}{Style.RESET_ALL}")
+                else:
+                    print(f"[DEAD] {full_domain}")
 
     with open(args.output, 'w') as f:
         for live in live_subdomains:
