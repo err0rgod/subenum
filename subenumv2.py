@@ -1,7 +1,12 @@
 import requests
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 import argparse
 from tqdm import tqdm
+from colorama import Fore, Style, init
+import urllib3
+
+init(autoreset=True)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def load_subdomains(filename):
     with open(filename, 'r') as f:
@@ -9,7 +14,7 @@ def load_subdomains(filename):
 
 def check_subdomain(full_domain):
     try:
-        response = requests.get(f"http://{full_domain}", timeout=3)
+        response = requests.head(f"http://{full_domain}", timeout=3, allow_redirects=True)
         return full_domain, response.status_code < 400
     except Exception:
         return full_domain, False
@@ -17,7 +22,7 @@ def check_subdomain(full_domain):
 def main():
     parser = argparse.ArgumentParser(description="Subdomain checker")
     parser.add_argument('-f', '--file', default='subdomains-1000.txt', help='Subdomains file')
-    parser.add_argument('-t', '--threads', type=int, default=20, help='Number of threads')
+    parser.add_argument('-t', '--threads', type=int, default=100, help='Number of threads')
     parser.add_argument('-o', '--output', default='live_subdomains.txt', help='Output file')
     parser.add_argument('-d', '--domain', required=False, help='Main domain (e.g., example.com)')
     args = parser.parse_args()
@@ -33,14 +38,13 @@ def main():
     full_domains = [f"{sub}.{domain}" for sub in subdomains]
 
     with ThreadPoolExecutor(max_workers=args.threads) as executor:
-        futures = [executor.submit(check_subdomain, d) for d in full_domains]
-        for future in tqdm(as_completed(futures), total=len(futures), desc="Progress"):
-            full_domain, is_live = future.result()
+        results = list(tqdm(executor.map(check_subdomain, full_domains), total=len(full_domains), desc="Overall Progress"))
+        for full_domain, is_live in results:
             if is_live:
-                print(f"[LIVE] {full_domain}")
+                print(f"{Fore.GREEN}[LIVE]{Style.RESET_ALL} {full_domain}")
                 live_subdomains.append(full_domain)
             else:
-                print(f"[DEAD] {full_domain}")
+                print(f"{Fore.LIGHTYELLOW_EX}[DEAD]{Style.RESET_ALL} {full_domain}")
 
     with open(args.output, 'w') as f:
         for live in live_subdomains:

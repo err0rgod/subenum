@@ -1,5 +1,5 @@
 import requests
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 import argparse
 from tqdm import tqdm
 
@@ -17,7 +17,7 @@ def check_subdomain(full_domain):
 def main():
     parser = argparse.ArgumentParser(description="Subdomain checker")
     parser.add_argument('-f', '--file', default='subdomains-1000.txt', help='Subdomains file')
-    parser.add_argument('-t', '--threads', type=int, default=20, help='Number of threads')
+    parser.add_argument('-t', '--threads', type=int, default=100, help='Number of threads')
     parser.add_argument('-o', '--output', default='live_subdomains.txt', help='Output file')
     parser.add_argument('-d', '--domain', required=False, help='Main domain (e.g., example.com)')
     args = parser.parse_args()
@@ -33,9 +33,8 @@ def main():
     full_domains = [f"{sub}.{domain}" for sub in subdomains]
 
     with ThreadPoolExecutor(max_workers=args.threads) as executor:
-        futures = [executor.submit(check_subdomain, d) for d in full_domains]
-        for future in tqdm(as_completed(futures), total=len(futures), desc="Progress"):
-            full_domain, is_live = future.result()
+        results = list(tqdm(executor.map(check_subdomain, full_domains), total=len(full_domains), desc="Overall Progress"))
+        for full_domain, is_live in results:
             if is_live:
                 print(f"[LIVE] {full_domain}")
                 live_subdomains.append(full_domain)
