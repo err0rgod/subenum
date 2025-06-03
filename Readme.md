@@ -20,7 +20,7 @@ SubEnum is a blazing-fast, multi-threaded subdomain enumeration tool written in 
 
 1. **Clone the repository:**
     ```sh
-    git clone https://github.com/yourusername/subenum.git
+    git clone https://github.com/err0rgod/subenum.git
     cd subenum
     ```
 
