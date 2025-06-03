@@ -5,18 +5,14 @@ from tqdm import tqdm
 from colorama import Fore, Style, init
 import urllib3
 
-
-
 print(r"          __________________     _   _______  ____   ____   __ _/")
 print(r"         _/ __ \_  __ \_  __ \/  /_\  \_  __ \/ ___\ /  _ \ / __ | ")
 print(r"         \  ___/|  | \/|  | \/\  \_/   \  | \/ /_/  >  <_> ) /_/ | ")
 print(r"          \___  >__|   |__|    \_____  /__|  \___  / \____/\____ | ")
 print(r"             \/                     \/     /_____/             \/ ")
 
-
 print("Subenum V1.0 - Subdomain Enumeration Tool")
 print("Author: err0rgod")
-
 
 init(autoreset=True)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -34,7 +30,7 @@ def check_subdomain(full_domain):
 
 def main():
     parser = argparse.ArgumentParser(description="Subdomain checker")
-    parser.add_argument('-f', '--file', default='subdomains-1000.txt', help='Subdomains file')
+    parser.add_argument('-f', '--file', help='Subdomains file')
     parser.add_argument('-t', '--threads', type=int, default=100, help='Number of threads')
     parser.add_argument('-o', '--output', default='live_subdomains.txt', help='Output file')
     parser.add_argument('-d', '--domain', required=False, help='Main domain (e.g., example.com)')
@@ -43,11 +39,23 @@ def main():
 
     use_color = not args.no_color
 
-    subdomains = load_subdomains(args.file)
+    # Ask for subdomains file if not provided
+    if args.file:
+        subdomains_file = args.file
+    else:
+        subdomains_file = input("Enter the path to the subdomains .txt file: ").strip()
+        while not subdomains_file:
+            subdomains_file = input("Please enter a valid subdomains .txt file: ").strip()
+
+    # Ask for domain if not provided
     if args.domain:
         domain = args.domain
     else:
-        domain = input("Enter the main domain (e.g., example.com): ")
+        domain = input("Enter the main domain (e.g., example.com): ").strip()
+        while not domain:
+            domain = input("Please enter a valid main domain (e.g., example.com): ").strip()
+
+    subdomains = load_subdomains(subdomains_file)
     live_subdomains = []
 
     print("\nTesting subdomains...\n")
