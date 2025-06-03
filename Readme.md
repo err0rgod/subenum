@@ -24,8 +24,15 @@ SubEnum is a blazing-fast, multi-threaded subdomain enumeration tool written in 
     cd subenum
     ```
 
-2. **Install dependencies:**
+2. **Install dependencies in a virtual environment (recommended):**
     ```sh
+    chmod +x install.sh
+    ./install.sh
+    ```
+    Or manually:
+    ```sh
+    python3 -m venv venv
+    source venv/bin/activate
     pip install -r requirements.txt
     ```
 
@@ -41,8 +48,8 @@ python subenum.py -f subdomains.txt -d example.com -t 100 -o live.txt
 
 | Argument         | Description                                 | Default                   |
 |------------------|---------------------------------------------|---------------------------|
-| `-f, --file`     | Subdomains wordlist file                    | subdomains-1000.txt       |
-| `-d, --domain`   | Target domain (e.g., example.com)           | (required)                |
+| `-f, --file`     | Subdomains wordlist file                    | (required, prompts if not provided) |
+| `-d, --domain`   | Target domain (e.g., example.com)           | (required, prompts if not provided) |
 | `-t, --threads`  | Number of threads                           | 100                       |
 | `-o, --output`   | Output file for live subdomains             | live_subdomains.txt       |
 | `-nc, --no-color`| Disable colored output                      | (color enabled by default)|
@@ -57,6 +64,8 @@ python subenum.py -f subdomains.txt -d example.com -t 200 -o live.txt
 python subenum.py -f subdomains.txt -d example.com -nc
 ```
 
+**If you omit `-f` or `-d`, the tool will prompt you interactively.**
+
 ---
 
 ## 📦 Output
@@ -68,6 +77,7 @@ python subenum.py -f subdomains.txt -d example.com -nc
 
 ## 📝 Example Screenshot
 
+<!-- Replace the link below with your actual screenshot if available -->
 ![screenshot](https://user-images.githubusercontent.com/yourusername/subenum-demo.png)
 
 ---
