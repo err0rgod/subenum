@@ -75,12 +75,6 @@ python subenum.py -f subdomains.txt -d example.com -nc
 
 ---
 
-## 📝 Example Screenshot
-
-<!-- Replace the link below with your actual screenshot if available -->
-![screenshot](https://user-images.githubusercontent.com/yourusername/subenum-demo.png)
-
----
 
 ## 💡 Tips
 
