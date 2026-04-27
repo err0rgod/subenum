@@ -1,99 +1,144 @@
-# 🚀 SubEnum: Fast Subdomain Enumerator
+# SubEnum V2.0 🚀
 
-SubEnum is a blazing-fast, multi-threaded subdomain enumeration tool written in Python. It checks a list of possible subdomains for a given domain and tells you which ones are live—complete with colored output and a progress bar!
+**Multi-threaded subdomain enumeration tool** — fast, reliable, with HTTP/HTTPS checking, DNS fallback, and multiple output formats.
+
+![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+[![GitHub](https://img.shields.io/badge/GitHub-err0rgod-181717?logo=github)](https://github.com/err0rgod)
 
 ---
 
 ## ✨ Features
 
-- **Super Fast:** Multi-threaded for maximum speed.
-- **Progress Bar:** See your scan progress in real time.
-- **Colored Output:** Instantly spot live (green) and dead (orange) subdomains.
-- **Customizable:** Choose your subdomain list, thread count, and output file.
-- **HTTP HEAD Requests:** Fast and lightweight checks.
-- **Optional Color:** Turn off colored output for logs or scripts.
-- **Easy to Use:** Simple command-line interface.
+- ⚡ **Multi-threaded scanning** — uses `ThreadPoolExecutor` for parallel subdomain checking
+- 🔒 **HTTP + HTTPS checks** — tries HTTPS first, falls back to HTTP
+- 🌐 **DNS resolution fallback** — detects live domains even when HTTP is blocked
+- 📊 **Real-time progress bar** — via `tqdm`
+- 🎨 **Colored terminal output** — via `colorama` (toggle with `-nc`)
+- 📁 **Multiple output formats** — TXT, CSV, or JSON
+- ⏱️ **Rate limiting** — `--delay` flag to avoid rate bans
+- 🔁 **Retry logic** — automatic retries on 429/5xx errors
+- 📝 **Verbose mode** — `-v` for debug-level logging
+- 🧠 **Interactive prompts** — works without arguments (asks for missing input)
 
 ---
 
 ## 🛠️ Installation
 
-1. **Clone the repository:**
-    ```sh
-    git clone https://github.com/err0rgod/subenum.git
-    cd subenum
-    ```
+```bash
+# Clone the repo
+git clone https://github.com/err0rgod/subenum.git
+cd subenum
 
-2. **Install dependencies in a virtual environment (recommended):**
-    ```sh
-    chmod +x install.sh
-    ./install.sh
-    ```
-    Or manually:
-    ```sh
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
+# Option A — using install script
+chmod +x install.sh
+./install.sh
+
+# Option B — manual setup
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Requirements
+- Python 3.8+
+- `requests`, `tqdm`, `colorama`
 
 ---
 
 ## ⚡ Usage
 
-```sh
-python subenum.py -f subdomains.txt -d example.com -t 100 -o live.txt
+### Minimal (interactive)
+```bash
+python subenum.py
+```
+You'll be prompted for the subdomain file and target domain.
+
+### Full command
+```bash
+python subenum.py -f subdomains.txt -d example.com -t 150 -o results.json --format json
 ```
 
-**Arguments:**
-
-| Argument         | Description                                 | Default                   |
-|------------------|---------------------------------------------|---------------------------|
-| `-f, --file`     | Subdomains wordlist file                    | (required, prompts if not provided) |
-| `-d, --domain`   | Target domain (e.g., example.com)           | (required, prompts if not provided) |
-| `-t, --threads`  | Number of threads                           | 100                       |
-| `-o, --output`   | Output file for live subdomains             | live_subdomains.txt       |
-| `-nc, --no-color`| Disable colored output                      | (color enabled by default)|
-
-**Example:**
-```sh
-python subenum.py -f subdomains.txt -d example.com -t 200 -o live.txt
+### With rate limiting & verbose logging
+```bash
+python subenum.py -f subdomains.txt -d example.com --delay 0.05 -v
 ```
 
-**Disable colored output:**
-```sh
+### Disable colors
+```bash
 python subenum.py -f subdomains.txt -d example.com -nc
 ```
 
-**If you omit `-f` or `-d`, the tool will prompt you interactively.**
+---
+
+## 📋 Arguments
+
+| Argument         | Description                                | Default                  |
+|------------------|--------------------------------------------|--------------------------|
+| `-f, --file`     | Subdomains wordlist file                   | (prompts if missing)     |
+| `-d, --domain`   | Target domain                              | (prompts if missing)     |
+| `-t, --threads`  | Number of concurrent threads               | `100`                    |
+| `-o, --output`   | Output file path                           | `live_subdomains.txt`    |
+| `--format`       | Output format (`txt`, `csv`, `json`)       | `txt`                    |
+| `-nc, --no-color`| Disable colored output                     | (colors enabled)         |
+| `-v, --verbose`  | Enable debug-level logging                 | (off)                    |
+| `--delay`        | Delay in seconds between requests          | `0.0`                    |
 
 ---
 
-## 📦 Output
+## 📁 Output Formats
 
-- **Live subdomains** are printed in green (unless `-nc` is used) and saved to your output file.
-- **Dead subdomains** are printed in light orange.
+### TXT (default)
+```
+subdomain1.example.com
+subdomain2.example.com
+```
+
+### CSV
+```csv
+domain,status_code,method
+subdomain1.example.com,200,HEAD/HTTPS
+subdomain2.example.com,,DNS
+```
+
+### JSON
+```json
+{
+  "live_subdomains": [
+    {"domain": "subdomain1.example.com", "status_code": 200, "method": "HEAD/HTTPS"}
+  ],
+  "count": 1
+}
+```
 
 ---
-
 
 ## 💡 Tips
 
-- Use a large subdomain wordlist for better results.
-- Increase threads for faster scans, but be mindful of your network and target rate limits.
-- Try both HTTP and HTTPS for more comprehensive results.
+- Use a **large wordlist** for better coverage
+- Adjust `-t` based on your network and target limits
+- Use `--delay 0.1` to avoid getting rate-limited
+- Use `--format json` if you need structured data for further processing
+- Run with `-v` to debug connectivity issues
 
 ---
 
-## 🧑‍💻 Contributing
+## 🤝 Contributing
 
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+Pull requests are welcome! For major changes, please open an issue first.
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/amazing`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push (`git push origin feature/amazing`)
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-MIT License
+MIT License — see [LICENSE](LICENSE)
 
 ---
 
-**Happy hacking! 🚀**
+**Happy hacking! 🖤**
